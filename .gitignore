@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+
+# Editor / agent local state
+.claude/
+
+# Raw API caches & generated outputs (script-reproducible)
+_explore/
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Notebooks
+notebooks/.ipynb_checkpoints/
