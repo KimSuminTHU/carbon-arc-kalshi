@@ -2,6 +2,8 @@
 
 CarbonArc 의 대안 데이터가 미국 공식 매크로 발표를 시간순으로 *leads* 한다는 *가설* 을 데이터로 검증해 보려고 한다. 검증을 시작하려면 먼저 "검증해 볼 만한 (CA dataset, Kalshi market) 페어" 의 list 가 필요하다. **이 repo 가 만드는 것은 그 list 이지 가설의 입증이 아니다.**
 
+> 📋 **1-page 요약**: `docs/status_summary.md` (현재 검증한 내용 + 2 bottlenecks).
+
 ## 용어 (먼저)
 
 | 용어 | 뜻 |
@@ -258,6 +260,7 @@ docs/
   verification_pairs_macro.md          Phase 0 메인 리포트 (754 페어 top-30)
   ca_datasets_in_verification_pairs.md 754 페어의 35 CA + sample row
   framework_prices.md                  Phase 4 가격표
+  status_summary.md                    ← 1-page 요약: 검증 내용 + 2 bottlenecks
   purchase_log.md                      Phase 5 실제 구매 기록 (3건)
   analysis_per_dataset.md              ← Phase 5 핵심 — 3 dataset × 13 macros 비교
   analysis_ca0030_multi_macro.md       Phase 5 CA0030 단독 13-macro deep-dive
