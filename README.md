@@ -94,33 +94,99 @@ CarbonArc 의 대안 데이터가 미국 공식 매크로 발표를 시간순으
 
 ---
 
-## Phase 5 결과 — 데이터셋 종류가 결론을 좌우
+## Phase 5 결과 — 페어별 verdict
 
-3 framework × 13 macros × multiple aggregations 의 lag correlation (YoY % change) 결과:
+### Test 방법 (모든 페어 동일)
 
-| Dataset (측정 단위) | Aggregation | CA leads | Macro leads | 우세 방향 |
-|---|---|---:|---:|---|
-| **CA0030 Clickstream (사용자 수)** | SUM | 5 | **7** | Macro leads |
-| | Desktop | 3 | **9** | Macro leads (강) |
-| | Mobile | **9** | 2 | CA leads (약) |
-| **CA0056 Credit Card Spend ($)** | SUM | **6** | 5 | CA leads |
-| | Online | **10** | 1 | **CA leads (압도)** |
-| | Physical | 5 | 6 | Macro leads (약) |
-| **CA0034 Instore POS Volume (건수)** | SUM | **10** | 3 | **CA leads (강)** |
+- CA 와 macro 둘 다 **YoY % change** 변환 (12개월 % 변화 → trend 제거)
+- Pearson r 을 **lag ∈ [−2, +2] months** 에서 계산
+- `best_lag` = \|r\| 가 최대인 lag
+- **lag > 0** → CA 가 macro 를 leads (가설 *지지*)
+- **lag < 0** → macro 가 CA 를 leads (가설 *반증*)
+- **lag = 0** → 동시기 (방향 판정 불가)
+- 강 = \|r\| ≥ 0.7, 중 = 0.5 ≤ \|r\| < 0.7, 약 = \|r\| < 0.5
+- **(∗) 표시 = best_lag 가 ±2 끝점** — 진짜 peak 이 ±2 밖일 가능성 (lag 범위 확장 검증 필요)
+- n = 46~51 months (YoY 적용 후 obs 수)
 
-**해석**:
-- **User-count 패널 (CA0030)**: 가설 미지지. Panel-growth artifact 가 dominant (5년간 5x 성장 → 경기 좋을 때 onboarding 가속).
-- **Transaction-based 패널 (CA0056 $, CA0034 건수)**: 가설 약-잠정 지지. Top 3 macros 에서 \|r\| ≈ 0.8 (CA0034 × NFP/Personal Income/Core CPI at lag +1, +2).
+### Direction 집계
 
-**결정적 차이**: 같은 13 macros 와 같은 변환을 썼는데 데이터셋 측정 단위만 바꿔도 방향이 뒤집힘 → 측정 단위 (사용자 수 vs 거래 금액 vs 거래 건수) 가 lead 패턴의 *진위* 를 결정.
+| Dataset (측정 단위) | Aggregation | CA leads | Macro leads | Contemp |
+|---|---|---:|---:|---:|
+| **CA0030 Clickstream (사용자 수)** | SUM | 5 | **7** | 1 |
+| | Mobile | **9** | 2 | 2 |
+| **CA0056 Credit Card Spend ($)** | SUM | **6** | 5 | 2 |
+| | Online | **10** | 1 | 2 |
+| **CA0034 Instore POS Volume (건수)** | SUM | **10** | 3 | 0 |
 
-**Caveats**:
-- 모든 시리즈가 2021-2026 nominal 상승 추세 → YoY 적용에도 common-trend 가 \|r\| 부풀릴 가능성
-- Multiple testing 미보정 (3 dataset × 평균 2.7 agg × 13 macros × 5 lag = 520+ 비교)
-- n=46-51 (YoY 적용 후) — 효과 크기 정밀도 부족
-- Lag ±2 의 끝점에 best_lag 몰림 → lag +3, +4 까지 확장 검증 필요
+### CA0030 Clickstream × 13 macros (SUM aggregation)
 
-자세히는 `docs/analysis_per_dataset.md`. CA0030 단독 deep-dive 는 `docs/analysis_ca0030_multi_macro.md`.
+| Macro | Verdict |
+|---|---|
+| Retail Sales | ❌ Macro leads −1m, r=+0.75 [강] |
+| NFP | ❌ Macro leads −1m, r=+0.68 [중] |
+| PCE Price | ✅ CA leads +2m, r=+0.68 [중] (∗) |
+| PPI | ❌ Macro leads −1m, r=+0.68 [중] |
+| CPI | ❌ Macro leads −1m, r=+0.67 [중] |
+| JOLTS Quits | ❌ Macro leads −1m, r=+0.65 [중] |
+| Core CPI | ❌ Macro leads −1m, r=+0.61 [중] |
+| New Home Sales | ✅ CA leads +1m, r=−0.61 [중] |
+| UMich Sentiment | ✅ CA leads +1m, r=−0.50 [중] |
+| Industrial Production | ⚪ Contemp, r=+0.46 |
+| Durable Goods | ✅ CA leads +2m, r=+0.44 [약] (∗) |
+| Personal Income | ❌ Macro leads −1m, r=−0.42 [약] |
+| Housing Starts | ✅ CA leads +2m, r=−0.15 [약] (∗) |
+
+→ **가설 미지지**: 인플레/고용/소비 핵심 7개 매크로 모두 Macro leads. CA leads 로 나온 페어들도 부호가 negative (UMich/NHS) 또는 lag ±2 끝점에 몰려 의심.
+
+### CA0056 Card Spend × 13 macros (SUM aggregation)
+
+| Macro | Verdict |
+|---|---|
+| Retail Sales | ⚪ Contemp, r=+0.84 |
+| PCE Price | ✅ CA leads +1m, r=+0.82 [강] |
+| CPI | ✅ CA leads +1m, r=+0.82 [강] |
+| PPI | ❌ Macro leads −2m, r=+0.81 [강] (∗) |
+| NFP | ✅ CA leads +2m, r=+0.79 [강] (∗) |
+| Core CPI | ✅ CA leads +2m, r=+0.76 [강] (∗) |
+| JOLTS Quits | ❌ Macro leads −1m, r=+0.71 [강] |
+| New Home Sales | ❌ Macro leads −2m, r=−0.60 [중] (∗) |
+| Industrial Production | ✅ CA leads +1m, r=+0.59 [중] |
+| UMich Sentiment | ❌ Macro leads −2m, r=−0.53 [중] (∗) |
+| Personal Income | ✅ CA leads +2m, r=−0.52 [중] (∗) |
+| Durable Goods | ❌ Macro leads −2m, r=+0.43 [약] (∗) |
+| Housing Starts | ⚪ Contemp, r=+0.14 |
+
+→ **부분 지지**: 핵심 인플레 지표 (PCE Price, CPI, Core CPI) + 고용 (NFP) + 산업 (INDPRO) 에서 CA leads. PPI / JOLTS / NHS / UMich 등 일부는 Macro leads. Online aggregation 만 보면 10/13 CA leads (압도). Retail Sales 는 r=0.84 의 강한 *contemp* 상관.
+
+### CA0034 Instore POS Volume × 13 macros
+
+| Macro | Verdict |
+|---|---|
+| **NFP** | **✅ CA leads +1m, r=+0.81 [강]** |
+| **Personal Income** | **✅ CA leads +2m, r=+0.78 [강] (∗)** |
+| **Core CPI** | **✅ CA leads +1m, r=+0.78 [강]** |
+| UMich Sentiment | ✅ CA leads +2m, r=+0.61 [중] (∗) |
+| PCE Price | ❌ Macro leads −2m, r=+0.59 [중] (∗) |
+| CPI | ❌ Macro leads −2m, r=+0.57 [중] (∗) |
+| JOLTS Quits | ✅ CA leads +2m, r=−0.51 [중] (∗) |
+| Industrial Production | ✅ CA leads +2m, r=−0.40 [약] (∗) |
+| Housing Starts | ✅ CA leads +2m, r=−0.33 [약] (∗) |
+| Durable Goods | ✅ CA leads +2m, r=−0.31 [약] (∗) |
+| PPI | ✅ CA leads +2m, r=−0.25 [약] (∗) |
+| Retail Sales | ❌ Macro leads −2m, r=+0.18 [약] (∗) |
+| New Home Sales | ✅ CA leads +2m, r=−0.08 [약] (∗) |
+
+→ **가장 강한 지지**: 10/13 CA leads. 특히 **NFP / Personal Income / Core CPI** 가 lag +1 또는 +2 에서 r ≈ +0.8 강 시그널. n=46 으로 더 작지만 효과 크기 가장 큼.
+
+### Caveats — 모든 verdict 에 동일 적용
+
+- 2021-2026 윈도우는 *모든 시리즈가 nominal 상승 추세* → YoY 적용에도 common-trend 가 \|r\| 를 부풀릴 가능성. **detrended residual 에서도 lag pattern 살아남는지 미검증**
+- (∗) 다수 — best_lag 가 ±2 끝점이면 진짜 peak 이 lag +3 이상일 수 있음. **lag ±4 까지 확장 미실시**
+- 3 dataset × 평균 2.7 agg × 13 macros × 5 lag = **520+ comparisons** — Bonferroni / permutation test 미적용
+- n=46~51 (YoY) → r=0.7 의 95% CI 가 [0.52, 0.83] 정도. 효과 *방향* 은 의미 있지만 *크기* 는 정밀도 부족
+- **r ≠ causation**. Granger-causality test, OOS forecast 정확도 측정이 진짜 lead 검증 — 다 미실시
+
+각 데이터셋별 다른 aggregation (Mobile/Online/Physical) 결과는 `docs/analysis_per_dataset.md`.
 
 ---
 
