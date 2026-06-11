@@ -3,6 +3,7 @@ carbonarc==1.1.13
 matplotlib==3.10.0
 numpy==2.4.4
 pandas==2.3.3
+py-clob-client-v2==1.0.1  # Polymarket trading SDK (orders only; reads need just `requests`)
 python-dotenv==1.2.2
 requests==2.32.3
 seaborn==0.13.2

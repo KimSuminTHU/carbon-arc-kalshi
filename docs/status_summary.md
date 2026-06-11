@@ -1,6 +1,6 @@
 # 현재 상황 — 1-page 요약
 
-_업데이트 2026-05-18. 자세한 내용은 `README.md` 와 `docs/analysis_per_dataset.md`._
+_업데이트 2026-06-02. 자세한 내용은 `README.md` 와 `docs/analysis_per_dataset.md`._
 
 ---
 
@@ -8,13 +8,14 @@ _업데이트 2026-05-18. 자세한 내용은 `README.md` 와 `docs/analysis_per
 
 ### 구매한 데이터
 
-3 CarbonArc framework, 총 **$44.41 / $50 promo** (잔액 $5.59).
+4 CarbonArc 주문, 총 **$69.36** 사용. **프로모 잔액 $10,525.05** (라이브 API 기준; 원래 $50 가 ~$10,594 로 top-up 됨).
 
-| Framework | 측정 단위 | 윈도우 | 가격 |
-|---|---|---|---:|
-| CA0030 Clickstream | 사용자 수 (Website Users) | 5y monthly US | $4.99 |
-| CA0056 Credit Card Spend | 거래 금액 ($) | 5y monthly US | $14.03 |
-| CA0034 Instore POS Volume | 거래 건수 (count) | 5y monthly US | $25.39 |
+| Framework | 측정 단위 | 윈도우 | 가격 | 검증 |
+|---|---|---|---:|---|
+| CA0030 Clickstream | 사용자 수 (Website Users) | 5y monthly US | $4.99 | ✅ 분석됨 |
+| CA0056 Credit Card Spend | 거래 금액 ($) | 5y monthly US | $14.03 | ✅ 분석됨 |
+| CA0034 Instore POS Volume | 거래 건수 (count) | 5y monthly US | $25.39 | ✅ 분석됨 |
+| CA0077 Stocks (fertilizer ×5) | 재고 (Metric Ton) | 국가별 분기 | $24.95 | ❌ 미분석 (매핑 타깃 없음) |
 
 ### 검증 방법
 
@@ -60,7 +61,11 @@ _업데이트 2026-05-18. 자세한 내용은 `README.md` 와 `docs/analysis_per
 
 ---
 
-## B. Bottleneck 1 — 인과 / 진짜 "lead" 인지 불명
+## B. Bottleneck 1 — (해결됨) 진짜 "lead" 아님, common-cycle artifact
+
+> **🔴 2026-06-02 검증 완료.** `scripts/auto/s_h_leadlag_stats.py` 로 CA0034 × NFP/Core CPI 에 prewhitened CCF + partial Granger + OOS Diebold-Mariano + Pyper-Peterman 실행 → **lead 전부 소멸**. raw CCF 가 lag −6~+6 전 구간 r≈0.8 로 평평, +1 lead 는 prewhitening 후 r=0.09, Granger/OOS 무의미, N_eff≈6. **답: 공통 사이클 confounder.** 상세 `docs/analysis_leadlag_stats.md`. 아래는 검증 전 원문 기록.
+
+### (원문) 
 
 ### 문제
 
@@ -81,28 +86,24 @@ _업데이트 2026-05-18. 자세한 내용은 `README.md` 와 `docs/analysis_per
 
 ---
 
-## C. Bottleneck 2 — 추가 구매 불가, credit 소진
+## C. Bottleneck 2 — (해소됨) 예산은 더 이상 제약 아님
 
-### 현황
+### 현황 (2026-06-02 정정)
 
-- Promo balance: **$5.59** ($44.41 / $50 사용)
-- 754 후보 페어 중 단독 $50 이내 구매 가능한 dataset: **14개 (282 페어)**. 그 중 **3개만 본 상태**
-- 다른 transaction-based 후보들 (Commodity prices, Card EU panel, POS Supermarket 등) 은 모두 $5.59 초과 가격
+- Promo balance: **$10,525.05** (구 문서의 $5.59 는 stale; 프로모가 ~$10,594 로 증액됨)
+- 즉 754 후보 중 단독 $50 이내 14개(282 페어)뿐 아니라, $400+ 짜리(CA0047 Supermarket 등) 도 구매 가능
+- 남은 진짜 제약은 **(1) 방법론** (단일 사이클 + monthly n≈50 → lead 입증 곤란) 과 **(2) 타깃 부재** (산 데이터에 정산 Kalshi 계약이 없을 수 있음 — CA0077 fertilizer 가 그 예)
 
-### 한계
+### 이제 할 수 있는 것 (예산 무관)
 
-- 가장 깨끗한 lead-lag 테스트로 보이는 dataset (transaction 단위) 를 더 많이 검증해야 결론 일반화 가능
-- 현재는 단 *한 종류* (Card $ + POS volume) 에서만 잠정 지지 — 한 carrier 의 fluke 일 수도
-- 754 페어 전체 검증은 *수백 $ 단위 추가 결제* 필요
-- $5.59 로 살 수 있는 후보:
-  - CA0058 Card Health Spend 1y monthly **$4.99** — 의료 카드 거래 (의료 CPI 와 매칭)
-  - CA0010 OTT Streaming 5y monthly **$4.99** — 엔터테인먼트 (754 후보 중 borderline 페어 검증용)
+- **Cross-dataset 일반화**: 현재 잠정 지지는 단 *한 종류* (Card $ + POS volume) — CA0028(다른 카드 패널), CA0029(다른 POS), CA0060(foot traffic) 를 사서 같은 lead 가 재현되는지 = "한 carrier 의 fluke 인가" 에 답
+- 단, **돈으로 못 푸는 것**: 공통 사이클 confound (Bottleneck 1). 이건 통계검증(Granger/prewhitened CCF/OOS DM)으로만 풀림 → `s_h_leadlag_stats.py` 에서 실행
 
 ### 의사결정 필요
 
-- (a) $5.59 잔액을 *지금* 추가 dataset 1개 더 사기 — 어느 것이 가장 정보 가치 있나?
-- (b) 잔액 묶어두고 Bottleneck 1 의 통계 검증 (Granger / OOS / detrend) 으로 *현재* 데이터에서 결론 확보부터
-- (c) 추가 promo / 유료 결제 옵션 협상 (CarbonArc collab 측에 요청)
+- (a) Cross-dataset 검증용으로 어떤 transaction-based 데이터셋부터 살지 (타깃 있는 것만)
+- (b) Bottleneck 1 통계검증 결과(lead 가 살아남나)를 본 뒤 구매 우선순위 확정
+- (c) CA0077 fertilizer 같은 "타깃 없는" 구매 반복 회피
 
 ---
 

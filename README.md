@@ -27,14 +27,16 @@ CarbonArc 의 대안 데이터가 미국 공식 매크로 발표를 시간순으
 ## 현재 상태
 
 1. **후보 페어 754개 추출 완료** — 10,161 Kalshi 시리즈 × 63 CA 데이터셋 → cheap-first 자동 필터링 후 754개 (`docs/verification_pairs_macro.md`).
-2. **3 framework 구매 후 13 macros 실증 검증 (총 $44.41 / $50 promo)**:
+2. **4 주문 / 총 $69.36 사용 (프로모 잔액 $10,525.05 — 라이브 API 기준)**:
    - CA0030 Clickstream $4.99 (사용자 수)
    - CA0056 Credit Card Spend $14.03 (거래 금액)
    - CA0034 Instore POS Volume $25.39 (거래 건수)
+   - CA0077 Commodity Stocks fertilizer ×5 $24.95 (재고; 단 매핑 타깃 없음 — 미분석)
+   - (이 중 처음 3개만 13 macros 실증 검증됨)
 3. **결과 — 데이터셋 종류에 강하게 의존** (위 verdict 기준 적용):
    - **CA0030 (사용자 수)**: 미지지 — 7/13 Macro leads. Panel-growth artifact.
    - **CA0056 (거래 $)**: 부분 지지 — 6/13 CA leads, 5/13 Macro leads. PCE/CPI/NFP 가 CA leads 강 시그널.
-   - **CA0034 (거래 건수)**: 잠정 지지 — 10/13 CA leads. NFP/Personal Income/Core CPI 에서 \|r\| ≈ 0.8.
+   - **CA0034 (거래 건수)**: ~~잠정 지지~~ → **철회**. raw lag-corr 은 10/13 CA leads (r≈0.8) 였으나, 엄격한 통계검증(prewhitened CCF / partial Granger / OOS DM)에서 **lead 전부 소멸** = common-cycle artifact (`docs/analysis_leadlag_stats.md`).
    - 자세히는 `docs/analysis_per_dataset.md`.
 
 ---
@@ -192,7 +194,11 @@ CarbonArc 의 대안 데이터가 미국 공식 매크로 발표를 시간순으
 | Retail Sales | ❌ Macro leads −2m, r=+0.18 [약] (∗) |
 | New Home Sales | ✅ CA leads +2m, r=−0.08 [약] (∗) |
 
-→ **Verdict: 잠정 지지** (10/13 CA leads ≥ 7 기준 충족, **NFP / Personal Income / Core CPI** 가 lag +1~+2 에서 r ≈ +0.8 강 시그널 ≥ 1 충족). n=46 으로 다른 dataset 보다 작지만 효과 크기 가장 큼.
+→ ~~**Verdict: 잠정 지지**~~ **→ 철회 (2026-06-02).** raw lag-corr 만 보면 10/13 CA leads, NFP/PI/Core CPI r≈0.8 였으나, kill-test 5종 통과 실패:
+- raw CCF 가 lag −6~+6 전 구간 r≈0.8 로 **평평** (peak 없음 = lead 아님)
+- prewhitened CCF 에서 +1 lead r=0.09 로 **소멸**, Granger CA→NFP p=0.41, partial Granger p=0.38, OOS DM p=0.72
+- Pyper-Peterman 실효 N_eff≈6 → r=0.8 도 보정 후 유의 실패
+- 결론: r≈0.8 은 **2022→2024 단일 매크로 사이클 공동 탑승**이지 CA→macro lead 아님. 상세 `docs/analysis_leadlag_stats.md`.
 
 ### Caveats — 모든 verdict 에 동일 적용
 
@@ -225,9 +231,10 @@ CarbonArc 의 대안 데이터가 미국 공식 매크로 발표를 시간순으
 3. Lag ±4 또는 ±6 까지 확장 — lag +2 가 진짜 peak 인지 vs ±2 끝점에 우연 몰림인지
 4. Out-of-sample forecast — 2021-2024 fit → 2025+ predict, baseline AR 대비 incremental 정확도 측정
 
-**남은 promo ($5.59) 추가 구매**:
-- CA0058 Card Health Spend 1y $4.99 — Medical CPI 검증 (CA0056 와 비교)
-- 또는 CA0010 OTT Streaming 5y $4.99 — 엔터테인먼트 borderline 페어 검증
+**추가 구매 (프로모 $10,525 여유 — 예산 제약 해소됨)**:
+- 우선순위는 *타깃(정산 Kalshi 계약)이 있는* transaction-based 데이터셋의 cross-dataset 검증:
+  CA0028 Card US Detailed ($54.72), CA0029 POS Convenience ($26.04), CA0060 Foot Traffic ($29.05), CA0047 POS Supermarket ($436.22)
+- ⚠️ CA0077 fertilizer 처럼 *Kalshi 타깃이 없는* commodity 구매는 피할 것 (검증 불가)
 
 **검증 파이프라인 자체 보완**:
 - Borderline 46 페어 수동 triage 또는 Sonnet 재실행으로 두 모델 합의만 채택

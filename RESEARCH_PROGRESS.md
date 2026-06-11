@@ -6,7 +6,7 @@ _Last updated 2026-05-18_
 
 ## 현재 상태 (한 줄)
 
-754 후보 페어 추출 완료 → 3 framework 구매 ($44.41 / $50 promo) → 13 macros × 3 dataset lag corr 검증 → **데이터셋 측정 단위 (사용자 수 vs 거래 금액 vs 거래 건수) 가 lead-lag 결과 방향을 좌우**. 다음: 검증 깊이 (Granger / detrend / OOS).
+754 후보 페어 추출 완료 → 4 주문 / $69.36 사용 (프로모 잔액 $10,525.05 — 라이브 API) → 그 중 3 dataset(CA0030/0056/0034) 만 13 macros lag corr 검증 → **데이터셋 측정 단위 (사용자 수 vs 거래 금액 vs 거래 건수) 가 lead-lag 결과 방향을 좌우**. 4번째 주문 CA0077 fertilizer(05-26)는 매핑 타깃 없어 미분석. 다음: 검증 깊이 (Granger / detrend / OOS).
 
 ## 연표
 
@@ -22,6 +22,8 @@ _Last updated 2026-05-18_
 | 2026-05-15 | Phase 5 첫 구매 — CA0030 Clickstream 5y, $4.99 | `docs/purchase_log.md` |
 | 2026-05-18 | Phase 5 두·세 번째 구매 — CA0056 Card Spend $14.03, CA0034 POS Volume $25.39 | `docs/purchase_log.md` |
 | 2026-05-18 | **3 dataset × 13 macros lag corr 검증 완료** — 측정 단위 의존적 결과 | `docs/analysis_per_dataset.md` |
+| 2026-05-26 | 4번째 주문 — CA0077 Commodity Stocks fertilizer ×5 ($24.95) | `outputs/fertilizer/`, `docs/purchase_log.md` |
+| 2026-06-02 | 라이브 API 재확인 — 주문 4건/$69.36, 프로모 잔액 $10,525.05 (구 문서 $5.59 정정) | `docs/purchase_log.md` |
 
 ## 결과 요약 (Phase 5)
 
@@ -49,10 +51,10 @@ _Last updated 2026-05-18_
 3. **Lag 범위 ±4 확장** — endpoint piling 해소
 4. **Out-of-sample forecast** — 2021-2024 fit → 2025+ predict, baseline AR(1) 대비 incremental 정확도
 
-## 다음 액션 (추가 구매, promo $5.59 남음)
+## 다음 액션 (추가 구매, promo $10,525.05 여유 — 예산 제약 해소)
 
-- CA0058 Card Health Spend 1y monthly $4.99 — Medical CPI 검증
-- 또는 CA0010 OTT Streaming 5y monthly $4.99 — 엔터테인먼트 borderline 페어 검증
+- 타깃(정산 Kalshi 계약) 있는 transaction-based 데이터셋 cross-dataset 검증: CA0028 / CA0029 / CA0060 / CA0047
+- ⚠️ CA0077 fertilizer 처럼 Kalshi 타깃 없는 commodity 구매 회피
 
 ## Repo 구조
 

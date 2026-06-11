@@ -64,9 +64,10 @@
 | 1 | CA0030 Clickstream | 5y monthly | $4.99 | 가설 미지지 (`analysis_per_dataset.md`) |
 | 2 | CA0056 Card Spend | 5y monthly | $14.03 | 부분 지지 |
 | 3 | CA0034 Instore POS Volume | 5y monthly | $25.39 | 잠정 지지 |
-| | **누적** | | **$44.41** | |
+| 4 | CA0077 Commodity Stocks (fertilizer ×5) | 국가별 분기 | $24.95 | 미분석 (Kalshi 타깃 없음) |
+| | **누적** | | **$69.36** | 프로모 잔액 **$10,525.05** (라이브 API) |
 
-남은 promo $5.59 — 후보: CA0058 Card Health Spend 1y $4.99 (Medical CPI), CA0010 OTT Streaming 5y $4.99 (borderline 검증).
+예산 제약 해소 ($10,525 여유) — 우선순위: 타깃 있는 transaction-based cross-dataset (CA0028 / CA0029 / CA0060 / CA0047). ⚠️ Kalshi 타깃 없는 commodity(예: CA0077 fertilizer) 구매 회피.
 
 자세히는 `docs/purchase_log.md`, 분석 결과는 `docs/analysis_per_dataset.md`.
 
