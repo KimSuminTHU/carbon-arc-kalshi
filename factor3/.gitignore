@@ -1,0 +1,10 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+data/transcripts/
+# Results: DO commit prediction CSVs, but NOT the licensed-FactSet-table JSONL dumps or plots.
+# (root .gitignore excludes outputs/; re-include the dir here, then re-exclude jsonl/png.)
+!outputs/
+outputs/*.jsonl
+outputs/*.png
