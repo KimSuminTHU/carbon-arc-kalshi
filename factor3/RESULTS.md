@@ -38,6 +38,12 @@ B end-to-end, 테이블 고정, X(카드)·Z(텍스트) 유무만 변경:
 **초가산 synergy**: 재무단독 null, 카드단독·텍스트단독 거의 0인데 **둘 합치면 0.281로 점프** = **X+Z 상호보완의 직접 증거**(연구가설). 부분 합(≈0.06)을 한참 초과. fin단독 null → "그냥 track record"가 아님. 안정성: 0.281이 독립 3런(0.268/0.258/0.281)과 일치.
 **⚠️ 미검증**: n=73·단일구간·77%양수; p=label-shuffle(shuffle-company 아님); interaction 유의성·replication 없음 → "강한 단서", 검증 필요.
 
+## synergy 검증 #1·#3 (2026-06-23 · `s_ak_validate.py` · $0, 저장 예측 계산)
+**#1 shuffle-company surrogate**: fin+card+text **통과(surr_p=0.038)** + within-company corr **+0.242**(나머지 arm 음수/0) → 공통추세 artifact 아님, **firm-specific 시변 신호**. fin·fin+card·fin+text는 surrogate 탈락(null).
+**#3 interaction (company-clustered bootstrap)**: synergy(초가산) **+0.214, p=0.010, CI[+0.03,+0.42] ✅**; text_on_card +0.147(p0.014); card_on_text +0.262(p0.034). → **결합이 부분을 유의하게 초과 = X+Z 상호보완 정량 증거.**
+**⚠️ 한계**: 절대 corr(r_fct) cluster-boot CI[-0.12,+0.59], p=0.086 — n=35 회사라 *절대 신호* CI는 0 포함. 유의한 건 interaction(결합>부분)이지 절대 크기 아님. → 더 많은 표본/구간 필요.
+**미실행**: #2 재런 안정성(~$22; 단 독립 3런 0.281/0.268/0.258로 간접 확인됨).
+
 ## 메인 격자 (셀별 OOS)
 | 셀 | I | R | OOS corr | OOS R² | IC | hit% | Δ점증R²(vs X) | CW p | DM-HLN p | surrogate p | FDR | verdict | status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
