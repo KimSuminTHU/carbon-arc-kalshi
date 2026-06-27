@@ -146,12 +146,26 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 - **난수 시드 = 2026 (전 실험 단일 고정)**: bootstrap·shuffle-company surrogate·label-permutation 전부 `np.random.default_rng(2026)`. 패키지: openai 2.43 / boto3 1.43 / pydantic 2.13 / pandas.
 - 라이선스 데이터(FactSet/CarbonArc/transcripts)는 **gitignore**(`factor1/data`,`factor3/data`,`**/transcripts`). 코드/스크립트로 재생성(쿼리·API 문서화). 비밀·버킷명은 `.env`.
 
-## 9. 미결 결정 (사용자 컨펌 필요)
+## 9. 결정 (resolved, 2026-06-28)
 
-1. **유니버스 = strong-O만 vs O 전체(strong+moderate)?** (현재 F1은 O 전체 39 매수)
-2. **card 추가 매수?** card도 O/X 스크린 → card-O 전체 매수할지. **개수·가격 먼저 산출·보고 → 컨펌 후 매수.**
-3. **LM 사전 negation/카테고리 처리** v0 미적용으로 고정 OK?
-4. **LLM MSE 보정** = raw + corr²(보정상한) 2개 보고로 충분한지(별도 OOS 보정셋은 LLM pre-cutoff 예측이 누설이라 불가).
+1. **유니버스 = O 전체(strong-O ∪ moderate-O)**; 결과는 **strong/moderate 티어 분리 보고**. ✅
+2. **card 추가 매수 = 완료** — card O/X 스크린(O=100) → 보유 35 제외 **신규 66 매수($456.99)** → **card-O 99 유니버스**(FactSet 99·트랜스크립트 95 확보). ✅
+3. **LM 사전: negation·기타 카테고리(uncertainty/litigious/modal/constraining) 미적용(v0 고정)**; 점수 = `(pos−neg)/(pos+neg)`. ✅
+4. **LLM MSE 보정 = raw RMSE/R² + corr²(보정상한) 2개 보고**. (별도 OOS 보정셋은 LLM pre-cutoff 예측이 누설이라 불가하므로 채택 안 함.) ✅
+
+## 10. 예상 LLM 비용 (gpt-5.5, ~$0.06/call)
+
+전통 baseline·MSE 재평가 = **$0**(LLM 아님). LLM 실험만 비용. web n≈60 post-cutoff, card n≈150 추정.
+
+| 실험 | web | card |
+|---|--:|--:|
+| 4-arm ablation | $12 (완료) | ~$33 |
+| architecture A/C/B | ~$11 | ~$27 |
+| Z-depth (1 vs 2 콜) | ~$10 | ~$13 |
+| **소계(핵심, 안정성 제외)** | **~$21** | **~$73** |
+| (옵션) 재실행 안정성 ×2 | ~$24 | ~$72 |
+
+→ **핵심 3종 × 양 채널 ≈ $90–120** (web ablation 완료분 제외 시 잔여 ~$80–100). 안정성까지 = ~$200. 각 개별 실험은 $13–36로 $20–40/실험 가이드 내.
 
 ---
 *변경 이력: v0 (2026-06-28) 초안.*
