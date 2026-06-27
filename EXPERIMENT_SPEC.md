@@ -1,8 +1,8 @@
 # EXPERIMENT SPEC — alt-data × earnings-call × LLM → revenue surprise
 
-> **단일 진실 원천(SSOT).** 모든 factor(F3=card, F1=web, 후보=foot/imports/exports)는 **이 문서의 세팅을
+> **단일 진실 원천(SSOT).** 모든 X 채널(card, web, foot, imports, exports)은 **이 문서의 세팅을
 > 글자 그대로 동일하게** 따른다. 디자인 선택은 전부 *근거(justification)*와 함께 명시한다 — 정당화 못 하는
-> 선택은 쓰지 않는다. 상태: **DRAFT v0 — 사용자 승인 전. 승인 전까지 실험 실행·데이터 구매 금지.**
+> 선택은 쓰지 않는다. 상태: **v1 (2026-06-28) — 결정 확정(§9)·card/web 데이터 조립 완료. LLM 통합 평가 대기(비용 §10; 실행 전 컨펌).**
 
 ---
 
@@ -21,8 +21,8 @@
 
 | X 채널 | 데이터셋 | 상태 |
 |---|---|---|
-| **Card spend** | CA0056 (insight 626) | **진행** — 기존 35종목; O/X 스크린 **O=100**(strong 81+moderate 19) |
-| **Web traffic** | CA0030 (insight 381, Desktop+Mobile site, **앱 제외**) | **진행** — 33종목 클린 |
+| **Card spend** | CA0056 (insight 626) | **데이터 완료** — O/X 스크린 O=100(strong 81+mod 19) → card-O 99 매수(보유 35+신규 66, $456.99); FactSet 99·transcript 95 |
+| **Web traffic** | CA0030 (insight 381, Desktop+Mobile site, **앱 제외**) | **데이터 완료** — web-O 39 매수; 클린 33종목 패널; 1차 ablation 완료 |
 | Foot traffic | CA0060 (insight 45862) | 후보 — 미구매 |
 | Imports | CA0040I (insight 586) | 후보 — 미구매 |
 | Exports | CA0040E (insight 589) | 후보 — 미구매 |
@@ -30,7 +30,7 @@
 - 사용자 지정 alt-data 후보 4종 = **Web · Foot · Imports · Exports**; Card는 최초 baseline. 현재 **2종(Card·Web) 진행 중**.
 - 디렉터리명 `factor1/`(web)·`factor3/`(card)는 레거시이며, 개념상으론 "X 채널"이다.
 
-## 2. 유니버스 선택 (모든 factor 공통 절차)
+## 2. 유니버스 선택 (모든 채널 공통 절차)
 
 1. **O/X 스크린:** 해당 alt-data가 회사 **전체 매출의 주요 동인**인지 티커별로 판정 → `strong-O / moderate-O / X`.
    **산출물(committed) = `factor1/data/altdata_ticker_screen.csv`** — **5채널(card/web/foot/imports/exports) 합본, 423행** (전문가 에이전트 스크린 → 적대적 감사 → borderline은 FactSet/FMP 매출믹스로 검증).
@@ -75,7 +75,7 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 - 회사별, 월간(web) 또는 분기(card). **변환 = YoY** = `pct_change(12 months)` 또는 `pct_change(4 quarters)`.
   - *근거:* 계절성 제거 + scale-free. 패널-성장 artifact(레벨)와 분리.
 - 분기 정렬: `merge_asof(direction="nearest", tolerance=45d)`로 fiscal-quarter-end에 매핑(offset-FY 안전).
-- 보조 변환 = `web_yoy_3m`(3개월 평균 YoY). **기각: `accel`(YoY−추세)** — F1에서 무신호(p>0.7), 사전등록상 보조로만.
+- 보조 변환 = `X_yoy_3m`(3개월/분기 평균 YoY). **기각: `accel`(YoY−추세)** — web에서 무신호(p>0.7), 보조로만.
 
 ### Y — 매출 서프라이즈 (point-in-time)
 - `surprise_early = (ACTUAL − CONS_EARLY)/CONS_EARLY`.
@@ -91,7 +91,7 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 - **텍스트화 = `html_to_text`**: `<script>/<style>` 블록 제거 → **모든 `<태그>` 제거** → HTML 엔티티 unescape → 공백 정리. (저장본 `.txt`에 **HTML 태그 0개** 검증 완료.) 이후 **48,000자 절단**(`MAX_TRANSCRIPT_CHARS`).
 - 동명 외국기업 충돌(PETS/REAL/ZIP 등)은 미국 발행사 이름으로 필터.
 
-## 4. 누설 통제 (모든 factor 동일)
+## 4. 누설 통제 (모든 채널 동일)
 
 - **LLM 평가표본 = `report_date > 모델 지식컷오프`** (gpt-5.5-2026-04-23 → **2025-12-01**). 코드 `assert`로 강제.
 - **전통(OLS/naive)** = `report_date ≤ 컷오프`로 **적합(train)** → **컷오프 이후로 예측(test)**. → LLM과 **동일 test 표본**, 동일 누설 프레임.
@@ -99,7 +99,7 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 
 ## 5. 모델 (전부 **동일한 n-matched test 표본**에서 평가)
 
-> **n-matching 규칙:** test 이벤트 = `{X_yoy, FactSet surprise, 직전콜 transcript, 과거 ≥3분기, lag_surprise}` **전부 존재**하는 post-cutoff 이벤트의 교집합. 모든 모델(전통+LLM)이 **정확히 같은 이벤트 집합**에서 평가됨. factor별 n을 명시.
+> **n-matching 규칙:** test 이벤트 = `{X_yoy, FactSet surprise, 직전콜 transcript, 과거 ≥3분기, lag_surprise}` **전부 존재**하는 post-cutoff 이벤트의 교집합. 모든 모델(전통+LLM)이 **정확히 같은 이벤트 집합**에서 평가됨. 채널별 n 명시: **web = 60** post-cutoff(33종목); **card = 평가 시 산출**(card-O 99 → 추정 ~150).
 
 **전통 (pre-cutoff 적합 → post-cutoff 예측):**
 - `N0 naive` = 회사별 과거 서프라이즈 평균(track record).
@@ -120,7 +120,7 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 **LLM (`gpt-5.5-2026-04-23`, reasoning effort=medium, structured output, zero-shot):**
 - 4-arm ablation: `fin / fin+X / fin+text / fin+X+text`. 동일 재무표(`HIST_ROWS=6`).
 - 아키텍처: `A`(text→score) / `C`(X+text→features) / `B`(end-to-end float). *근거:* "증류 점수 vs end-to-end" (F3 시그니처).
-- 프롬프트·시스템문구는 factor 간 X 라벨만 교체, 그 외 동일(`f1_llm.py`/`f1_05`/`f1_07`).
+- 프롬프트·시스템문구는 **채널 간 X 라벨만 교체**, 그 외 동일(`f1_llm.py`/`f1_05`/`f1_07`).
 
 ## 6. 지표 (**주지표 = MSE/RMSE**)
 
@@ -134,7 +134,7 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 - *주의:* LLM 출력은 미보정 %라 raw RMSE에서 불리. **raw RMSE/R²와 corr²(보정상한)을 함께** 보고해 *정보력*과 *보정*을 분리. OLS는 SSE-적합이라 raw가 곧 보정후. 이 비대칭을 표에 명시.
 - **인풋-매칭 주의(중요):** OLS(가공 스칼라) vs LLM(raw 표+텍스트)은 *인풋이 다름* → "동일인풋 모델비교" 아님, **시스템 대 시스템** 비교로 라벨. 추가로, 텍스트 제외 *구조화-only*에서 `LLM(fin+X)` vs `OLS(동일 구조화 피처: X 6분기+lag들+컨센성장률)`로 **인풋-매칭 비교**를 별도 제공.
 
-## 7. 검증 (모든 factor 동일)
+## 7. 검증 (모든 채널 동일)
 
 - **#1 shuffle-company surrogate** — firm-specific vs 공통추세 artifact.
 - **#3 company-clustered bootstrap (5000)** — 초가산 synergy를 **corr·MSE-skill 양쪽**에서 + 결합 절대 예측력(RMSE/R²) CI.
@@ -144,7 +144,8 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 ## 8. 재현성
 
 - **난수 시드 = 2026 (전 실험 단일 고정)**: bootstrap·shuffle-company surrogate·label-permutation 전부 `np.random.default_rng(2026)`. 패키지: openai 2.43 / boto3 1.43 / pydantic 2.13 / pandas.
-- 라이선스 데이터(FactSet/CarbonArc/transcripts)는 **gitignore**(`factor1/data`,`factor3/data`,`**/transcripts`). 코드/스크립트로 재생성(쿼리·API 문서화). 비밀·버킷명은 `.env`.
+- 라이선스 데이터(FactSet/CarbonArc/transcripts)는 **gitignore**(`factor1/data/*`,`factor3/data`,`**/transcripts`) — **단 `factor1/data/altdata_ticker_screen.csv`(O/X 스크린)만 예외로 커밋**(우리 분석물).
+- 데이터 파일(전부 gitignore·재생성): `factset_{web38,card99}_pit.json`(FactSet PIT), `transcript_index_{web,card}.csv`+`data/transcripts/*.txt`, `ca0030_web_O39_*`·`card_O_netnew_*`(Carbon Arc), `lm_master_dictionary.csv`(9MB). 비밀·버킷명은 `.env`.
 
 ## 9. 결정 (resolved, 2026-06-28)
 
@@ -168,4 +169,4 @@ Full verbatim workflow scripts: `altdata-ticker-screen`, `card-oxscreen`.
 → **핵심 3종 × 양 채널 ≈ $90–120** (web ablation 완료분 제외 시 잔여 ~$80–100). 안정성까지 = ~$200. 각 개별 실험은 $13–36로 $20–40/실험 가이드 내.
 
 ---
-*변경 이력: v0 (2026-06-28) 초안.*
+*변경 이력: v0 초안 → **v1 (2026-06-28)**: "factor"→"채널" 용어 정정; MSE 주지표 + H2 corr&MSE 양면; LM-2011 사전(멤버십 `>0`, Pos 347/Neg 2345); 시드 단일 2026; 스크리닝 프롬프트 명시; §9 결정 확정; §10 LLM 비용; card 데이터 조립(card-O 99) 완료.*
