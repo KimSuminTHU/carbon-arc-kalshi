@@ -9,7 +9,7 @@ What this validates: AWS/S3 access, OPENAI key + `gpt-5.5` model id, the .parse(
 outputs for all 3 prompt families, response parsing, token/cost accounting, and the leakage frame.
 
 Integration reused from credit-agent:
-  - boto3 get_object on bucket REDACTED-S3-BUCKET  (app/scripts/fetch_filing_html.py)
+  - boto3 get_object on the S3 bucket named in $AWS_S3_BUCKET_NAME  (app/scripts/fetch_filing_html.py)
   - OpenAI().beta.chat.completions.parse(model=..., response_format=<Pydantic>, reasoning_effort=...)
     (app/services/gpt_parser.py); model overridable via env GPT_PARSER_MODEL.
   - .env (OPENAI_API_KEY, AWS_*, AWS_S3_BUCKET_NAME) from credit-agent/.env.
@@ -49,7 +49,7 @@ for _src in (_cred, _local):
 
 import boto3  # noqa: E402
 
-S3_BUCKET = os.getenv("AWS_S3_BUCKET_NAME", "REDACTED-S3-BUCKET")
+S3_BUCKET = os.getenv("AWS_S3_BUCKET_NAME")  # set in .env (no hardcoded bucket)
 GPT_MODEL = os.getenv("GPT_PARSER_MODEL", "gpt-5.5-2026-04-23")
 GPT_EFFORT = os.getenv("GPT_REASONING_EFFORT", "medium")
 MAX_TRANSCRIPT_CHARS = 48_000  # ~12k tokens; controls smoke cost

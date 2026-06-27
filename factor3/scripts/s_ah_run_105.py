@@ -12,6 +12,7 @@ Leakage: targets are post-cutoff; inputs are pre-print point-in-time; truth used
 Run:  factor3/.venv/bin/python factor3/scripts/s_ah_run_105.py
 """
 import asyncio
+import os
 import sys
 import time
 from pathlib import Path
@@ -33,7 +34,7 @@ TXCACHE = ROOT / "data" / "transcripts"
 OUT = ROOT / "outputs"
 HIST_ROWS = 6           # uniform table depth across ALL arms (user requirement)
 CONC = 512              # fire all calls at once (true async); retry handles any 429s
-S3BUCKET = "REDACTED-S3-BUCKET"
+S3BUCKET = os.getenv("AWS_S3_BUCKET_NAME")  # set in .env (no hardcoded bucket)
 
 
 def load_index() -> pd.DataFrame:

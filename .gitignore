@@ -9,6 +9,13 @@
 _explore/
 outputs/
 
+# Licensed third-party data — FactSet / Carbon Arc / S&P-CIQ transcripts.
+# Script-reproducible; MUST NOT be committed (data licensing + internal S3 key paths).
+factor1/data/
+factor3/data/
+**/transcripts/
+*_pit.json
+
 # Python
 __pycache__/
 *.pyc
@@ -21,3 +28,4 @@ venv/
 
 # Notebooks
 notebooks/.ipynb_checkpoints/
+factor3/outputs/
